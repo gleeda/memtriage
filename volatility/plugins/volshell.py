@@ -58,7 +58,7 @@ class volshell(common.AbstractWindowsCommand):
         config.add_option('OFFSET', short_option = 'o', default = None,
                           help = 'EPROCESS Offset (in hex) in kernel address space',
                           action = 'store', type = 'int')
-        config.add_option('IMNAME', short_option = 'n', default = None,
+        config.add_option('IMNAME', default = None,
                           help = 'Operate on this Process name',
                           action = 'store', type = 'str')
         config.add_option('PID', short_option = 'p', default = None,
