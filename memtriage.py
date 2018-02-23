@@ -22,7 +22,7 @@ import volatility.scan as scan
 
 
 '''
-Author: Jamie Levy
+Author: Jamie Levy <jamie.levy@gmail.com>
 
 memtriage
 
