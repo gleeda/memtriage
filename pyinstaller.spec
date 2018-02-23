@@ -10,9 +10,23 @@ def get_plugins(list):
 
 exeext = ".exe" if sys.platform.startswith("win") else ""
 
-a = Analysis([os.path.join(projpath, 'vol.py')],
+a = Analysis([os.path.join(projpath, 'memtriage.py')],
               pathex = [HOMEPATH],
               hookspath = [os.path.join(projpath, 'pyinstaller')])
+
+for d in a.datas:
+    if 'pyconfig' in d[0]: 
+        a.datas.remove(d)
+        break
+
+excludes = ["arm.py", "elfcoredump.py", "ieee1394.py", "hpak.py", "vmware.py", "macho.py", "lime.py", "osxpmemelf.py", "vmem.py", "vmware.py"]
+
+for d in a.binaries:
+    for item in d[0]:
+        if item in excludes:
+            print "removing", d[0]
+            a.binaries.remove(d)
+
 pyz = PYZ(a.pure)
 plugins = Tree(os.path.join(projpath, 'volatility', 'plugins'),
                os.path.join('plugins'))
@@ -22,7 +36,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           plugins,
-          name = os.path.join(projpath, 'dist', 'pyinstaller', 'volatility' + exeext),
+          name = os.path.join(projpath, 'dist', 'pyinstaller', 'memtriage' + exeext),
           debug = False,
           strip = False,
           upx = True,
