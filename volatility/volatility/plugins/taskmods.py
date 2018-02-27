@@ -47,7 +47,7 @@ class DllList(common.AbstractWindowsCommand, cache.Testable):
                           help = 'Operate on these Process IDs (comma-separated)',
                           action = 'store', type = 'str')
 
-        config.add_option('NAME', short_option = 'n', default = None,
+        config.add_option('NAME', default = None,
                           help = 'Operate on these process names (regex)',
                           action = 'store', type = 'str')
 

@@ -13,7 +13,7 @@ import os
 import sys
 
 datas = []
+path = os.path.join(os.getcwd(), "drivers")
 
-for path in sys.path:
-  datas.append((os.path.join(path, "openpyxl", ".constants.json"), ""))
-
+datas.append((os.path.join(path, "winpmem_x64.sys"), ""))
+datas.append((os.path.join(path, "winpmem_x86.sys"), ""))
