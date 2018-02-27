@@ -106,6 +106,8 @@ WindowsVersionsX64 = {
 }
 
 def get_version_number(filename):
+    #modified from
+    # https://stackoverflow.com/questions/580924/python-windows-file-version-attribute
     try:
         info = GetFileVersionInfo (filename, "\\")
         ms = info['FileVersionMS']
