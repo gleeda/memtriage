@@ -2,7 +2,7 @@
 #   https://github.com/botherder/detekt
 # Other refs:
 #   https://code.activestate.com/recipes/135700-win32-service-administration/
-# GPL 
+# GPL v2
 
 import os, sys
 import time
@@ -21,11 +21,12 @@ STOPPED = win32service.SERVICE_STOPPED
 SERVICE_WAIT_TIMEOUT = 30
 
 class Service(object):
-    def __init__(self, driver, service):
+    def __init__(self, driver, service, debug = False):
         self.driver = driver
         self.service_name = service
         self.manager = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_CREATE_SERVICE)
         self.service = None
+        self.debug = debug
 
     def __del__(self):
         if self.service:
@@ -43,14 +44,16 @@ class Service(object):
                 win32file.FILE_ATTRIBUTE_NORMAL,
                 None)
 
-            print "Loaded the winpmem driver. You can now attach volatility to", "\\\\.\\" + self.service_name
+            if self.debug:
+                print "Loaded the winpmem driver. You can now attach volatility to", "\\\\.\\" + self.service_name
         except:
-            print "error with CreateFile of fd", "\\\\.\\" + self.service_name
-        try:
-            #image = Image(fd)
+            if self.debug:
+                print "error with CreateFile of fd", "\\\\.\\" + self.service_name
+        #try:
+        #   image = Image(fd)
             print
-        except:
-            print "error loading driver", self.driver
+        #except:
+        #    print "error loading driver", self.driver
         return kdbg
 
     def wait_status(self, status=win32service.SERVICE_RUNNING, timeout=SERVICE_WAIT_TIMEOUT):
@@ -67,7 +70,8 @@ class Service(object):
         while True:
             if abort.is_set():
                 # If timeout is hit we abort.   
-                print "Timeout hit waiting service for status {0}, current status {1}".format(status, current['CurrentState'])
+                if self.debug:
+                    print "Timeout hit waiting service for status {0}, current status {1}".format(status, current['CurrentState'])
                 return
 
             current = win32service.QueryServiceStatusEx(self.service)
@@ -86,13 +90,16 @@ class Service(object):
                 win32service.SERVICE_ALL_ACCESS
             )
         except Exception as e:
-            print "Unable to OpenService: {0}".format(e)
+            if self.debug:
+                print "Unable to OpenService: {0}".format(e)
 
     def create(self):
         if not self.driver or not os.path.exists(self.driver):
-            print "The driver does not exist at path: {0}".format(self.driver)
+            if self.debug:
+                print "The driver does not exist at path: {0}".format(self.driver)
             return
-        print "Trying to create service", self.service_name, self.driver
+        if self.debug:
+            print "Trying to create service", self.service_name, self.driver
 
         try:
             if not self.service:
@@ -107,7 +114,8 @@ class Service(object):
                     self.driver,
                     None, 0, None, None, None)
         except win32service.error as e:
-            print "Unable to create service: {0}".format(e)
+            if self.debug:
+                print "Unable to create service: {0}".format(e)
             self.service = win32service.OpenService(self.manager, self.service_name,
                                         win32service.SERVICE_ALL_ACCESS)
         try:
@@ -116,7 +124,8 @@ class Service(object):
             pass
 
     def start(self):
-        print "Trying to start the winpmem service..."
+        if self.debug:
+            print "Trying to start the winpmem service..."
 
         try:
             win32service.StartService(self.service, [])
@@ -125,9 +134,10 @@ class Service(object):
             # This generally shouldn't happen, but in case it does we can just
             # try to use the running instance and unload it when we're done.
             if hasattr(e, 'winerror') and int(e.winerror) == 1056:
-                print "The service appears to be already loaded"
+                if self.debug:
+                    print "The service appears to be already loaded"
             # If the problem is different, we need to terminate.
-            else:
+            elif self.debug:
                 print "Unable to start service: {0}".format(e)
 
         self.wait_status()
@@ -143,38 +153,46 @@ class Service(object):
         return status
 
     def stop(self):
-        print "Trying to stop the winpmem service..."
+        if self.debug:
+            print "Trying to stop the winpmem service..."
 
         try:
             win32service.ControlService(self.service, win32service.SERVICE_CONTROL_STOP)
         except Exception as e:
-            print "Unable to stop service: {0}".format(e)
+            if self.debug:
+                print "Unable to stop service: {0}".format(e)
 
         self.wait_status(win32service.SERVICE_STOPPED)
 
     def delete(self):
-        print "Trying to delete the winpmem service..."
+        if self.debug:
+            print "Trying to delete the winpmem service..."
 
         try:
             win32service.DeleteService(self.service)
         except:
-            print "Unable to DeleteService"
+            if self.debug:
+                print "Unable to DeleteService"
         try:
             win32service.CloseServiceHandle(self.service)
         except Exception as e:
-            print "Unable to CloseServiceHandle: {0}, {1}".format(self.service, e)
+            if self.debug:
+                print "Unable to CloseServiceHandle: {0}, {1}".format(self.service, e)
         try:
             win32service.CloseServiceHandle(self.manager)
         except Exception as e:
-            print "Unable to delete the service: {0}".format(e)
+            if self.debug:
+                print "Unable to delete the service: {0}".format(e)
 
-def destroy(driver, service):
-    print ("Launching service destroyer...")
+def destroy(driver, service, debug = False):
+    if debug:
+        print ("Launching service destroyer...")
     service = Service(driver, service)
     try:
         service.open()
     except Exception as e:
-        print e
+        if debug:
+            print e
         return
 
     try:
@@ -185,5 +203,6 @@ def destroy(driver, service):
     try:
         service.delete()
     except Exception as e:
-        print e
+        if debug:
+            print e
 

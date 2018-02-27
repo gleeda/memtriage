@@ -12,7 +12,7 @@ exeext = ".exe" if sys.platform.startswith("win") else ""
 
 a = Analysis([os.path.join(projpath, 'memtriage.py')],
               pathex = [HOMEPATH],
-              hookspath = [os.path.join(projpath, 'pyinstaller')])
+              hookspath = [os.path.join(projpath, 'volatility', 'pyinstaller')])
 
 for d in a.datas:
     if 'pyconfig' in d[0]: 
@@ -28,7 +28,7 @@ for d in a.binaries:
             a.binaries.remove(d)
 
 pyz = PYZ(a.pure)
-plugins = Tree(os.path.join(projpath, 'volatility', 'plugins'),
+plugins = Tree(os.path.join(projpath, 'volatility', 'volatility', 'plugins'),
                os.path.join('plugins'))
 exe = EXE(pyz,
           a.scripts + [('u', '', 'OPTION')],
@@ -40,5 +40,5 @@ exe = EXE(pyz,
           debug = False,
           strip = False,
           upx = True,
-          icon = os.path.join(projpath, 'resources', 'volatility.ico'),
+          icon = os.path.join(projpath, 'resources', 'memforensics.ico'),
           console = 1)
