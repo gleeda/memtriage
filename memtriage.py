@@ -49,6 +49,8 @@ plugin_rows = {
     "envars":["Pid", "Process", "Block", "Variable", "Value"],
     "verinfo":["Module", "FileVersion", "ProductVersion", "Flags", "OS", "FileType", "FileDate", "InfoString"],
     "atoms":["Offset(V)", "Session", "WindowStation", "Atom", "RefCount", "HIndex", "Pinned", "Name"],
+    "shimcachemem":["Order", "Last Modified", "Last Update", "Exec Flag", "File Size", "File Path"],
+    "apihooks":["HookMode", "HookType", "Process", "PID", "VictimModule", "VictimModBase", "VictimModSize", "Function", "HookAddress", "HookingModule", "DataAddress", "Data"],
     "volshell":[],
 }
 
@@ -76,6 +78,7 @@ WindowsVersionsX86 = {
     "10.0.15063.0":"Win10x86_15063",
     "10.0.15063.608":"Win10x64_15063",
     "10.0.16299.15":"Win10x86_16299",
+    "10.0.10240.17770":"Win10x86_10240_17770",
 }
 
 WindowsVersionsX64 = { 
@@ -103,6 +106,7 @@ WindowsVersionsX64 = {
     "10.0.15063.608":"Win10x64_15063",
     "10.0.14393.479":"Win10x64_14393",
     "10.0.16299.0":"Win10x64_16299",
+    "10.0.10240.17770":"Win10x64_10240_17770",
 }
 
 def get_version_number(filename):
