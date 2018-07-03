@@ -1,6 +1,5 @@
 # -*- mode: python -*-
 import sys
-
 projpath = os.path.dirname(os.path.abspath(SPEC))
 
 def get_plugins(list):
@@ -12,14 +11,14 @@ exeext = ".exe" if sys.platform.startswith("win") else ""
 
 a = Analysis([os.path.join(projpath, 'memtriage.py')],
               pathex = [HOMEPATH],
-              hookspath = [os.path.join(projpath, 'volatility', 'pyinstaller')])
+              hookspath = [os.path.join(projpath, 'pyinstaller')])
 
 for d in a.datas:
     if 'pyconfig' in d[0]: 
         a.datas.remove(d)
         break
 
-excludes = ["arm.py", "elfcoredump.py", "ieee1394.py", "hpak.py", "vmware.py", "macho.py", "lime.py", "osxpmemelf.py", "vmem.py", "vmware.py"]
+excludes = [".DS_Store", "arm.py", "elfcoredump.py", "ieee1394.py", "hpak.py", "vmware.py", "macho.py", "lime.py", "osxpmemelf.py", "vmem.py", "vmware.py"]
 
 for d in a.binaries:
     for item in d[0]:
@@ -28,7 +27,7 @@ for d in a.binaries:
             a.binaries.remove(d)
 
 pyz = PYZ(a.pure)
-plugins = Tree(os.path.join(projpath, 'volatility', 'volatility', 'plugins'),
+plugins = Tree(os.path.join(projpath, 'volatility', 'plugins'),
                os.path.join('plugins'))
 exe = EXE(pyz,
           a.scripts + [('u', '', 'OPTION')],
@@ -42,3 +41,4 @@ exe = EXE(pyz,
           upx = True,
           icon = os.path.join(projpath, 'resources', 'memforensics.ico'),
           console = 1)
+
