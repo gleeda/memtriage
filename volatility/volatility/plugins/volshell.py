@@ -308,6 +308,12 @@ class volshell(common.AbstractWindowsCommand):
             """
             self.modules()
 
+        def quit():
+            sys.exit(0)
+
+        def exit():
+            sys.exit(0)
+
         def sc():
             """Show the current context.
             
