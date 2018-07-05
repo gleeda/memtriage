@@ -667,7 +667,7 @@ class DumpFiles(common.AbstractWindowsCommand):
 
         config.add_option('REGEX', short_option = 'r',
                       help = 'Dump files matching REGEX',
-                      action = 'store', type = 'string')
+                      action = 'store', type = 'string', default = None)
         config.add_option('IGNORE-CASE', short_option = 'i',
                       help = 'Ignore case in pattern match',
                       action = 'store_true', default = False)
@@ -1080,6 +1080,8 @@ class DumpFiles(common.AbstractWindowsCommand):
                     str(summaryinfo['name']),
                     str(summaryinfo['ofpath']),
                     Bytes(of.getvalue())])
+                temp = open(summaryinfo['ofpath'], 'wb')
+                temp.write(of.getvalue())
                 of.close()
 
             elif summaryinfo['type'] == "ImageSectionObject":
@@ -1119,6 +1121,8 @@ class DumpFiles(common.AbstractWindowsCommand):
                     str(summaryinfo['name']),
                     str(summaryinfo['ofpath']),
                     Bytes(of.getvalue())])
+                temp = open(summaryinfo['ofpath'], 'wb')
+                temp.write(of.getvalue())
                 of.close()
 
             elif summaryinfo['type'] == "SharedCacheMap":
@@ -1147,6 +1151,8 @@ class DumpFiles(common.AbstractWindowsCommand):
                     str(summaryinfo['name']),
                     str(summaryinfo['ofpath']),
                     Bytes(of.getvalue())])
+                temp = open(summaryinfo['ofpath'], 'wb')
+                temp.write(of.getvalue())
                 of.close()
 
             else:
