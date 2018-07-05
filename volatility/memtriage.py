@@ -470,7 +470,10 @@ def main():
         if "PHYSOFFSET" not in items["options"]:
             myconfigs.config.PHYSOFFSET = None
         else:
-            myconfigs.config.PHYSOFFSET = args.physoffset
+            try:
+                myconfigs.config.PHYSOFFSET = hex(int(args.physoffset))
+            except:
+                myconfigs.config.PHYSOFFSET = args.physoffset
         if "PHYSICAL_OFFSET" not in items["options"] or not args.physical:
             myconfigs.config.PHYSICAL_OFFSET = None
         else:
