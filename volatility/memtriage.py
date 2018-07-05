@@ -44,7 +44,7 @@ plugin_cols = {
     "dumpfiles":{"cols":["Source", "Address", "PID", "Name", "OutputPath", "Data"], "options":["PHYSOFFSET", "PID", "OFFSET", "REGEX", "IGNORE_CASE"]},
 }
 
-dumpers = ["dlldump", "procdump", "vaddump", "moddump", "dumpfiles"]
+dumpers = ["dlldump", "procdump", "vaddump", "moddump", "dumpfiles", "malfind"]
 
 all_options = ["BASE", "MEMORY", "REGEX", "PID", "OFFSET", "NAME", "PHYSOFFSET", "PHYSICAL_OFFSET", "IGNORE_CASE", "DUMP_DIR"]
 
@@ -240,6 +240,7 @@ def getinfos(data, items = []):
     return datas
 
 def get_malfind_data(data, output = "text"):
+    import volatility.plugins.malware.malfind as malfind
     datas = getinfos(data, plugin_cols["malfind"]["cols"])
     if output == "json":
         print datas
@@ -439,10 +440,7 @@ def main():
             continue
         cols = items["cols"]
         myconfigs.config.DUMP_DIR = None
-        if p == "malfind":
-            get_malfind_data(myconfigs.getdata(malfind.Malfind), output = output)
-            continue
-        if p == "volshell":
+        if p.strip() == "volshell":
             dovolshell = True
             continue
         if "BASE" not in items["options"]:
@@ -489,6 +487,9 @@ def main():
             print "Skipping plugin", p
             continue
         myconfigs.config.parse_options()
+        if p.strip() == "malfind":
+            get_malfind_data(myconfigs.getdata(malfind.Malfind), output = output)
+            continue
         data = myconfigs.getdata(cmds.get(p.strip(), None))
         if data == None:
             print "Plugin", p, "not found"
