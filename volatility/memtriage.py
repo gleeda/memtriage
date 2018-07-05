@@ -41,7 +41,7 @@ plugin_cols = {
     "procdump":{"cols": ["Process(V)", "ImageBase", "Name", "Result"],"options": ["PID", "BASE", "MEMORY", "OFFSET"]},
     "vaddump":{"cols": ["Pid", "VADNodeAddress", "Start", "End", "Tag", "Flags", "Protection", "VadType", "ControlArea", "Segment", "NumberOfSectionReferences", "NumberOfPfnReferences", "NumberOfMappedViews", "NumberOfUserReferences", "Control Flags", "FileObject", "FileNameWithDevice", "FirstPrototypePte", "LastContiguousPte", "Flags2"], "options": ["PID", "BASE", "MEMORY", "OFFSET"]},
     "moddump":{"cols": ["Module Base", "Module Name", "Result"], "options": ["BASE", "MEMORY"]},
-    "dumpfiles":{"cols":["Source", "Address", "PID", "Name", "OutputPath", "Data"], "options":["PHYSOFFSET", "PID", "OFFSET", "REGEX", "IGNORE_CASE"]},
+    "dumpfiles":{"cols":["Source", "Address", "PID", "Name", "OutputPath", "Data"], "options":["PHYSOFFSET", "PID", "OFFSET", "REGEX", "IGNORE_CASE", "KEEPNAME"]},
 }
 
 dumpers = ["dlldump", "procdump", "vaddump", "moddump", "dumpfiles", "malfind"]
@@ -315,6 +315,7 @@ def get_parser():
     parser.add_argument("--ignore", help="Ignore case in pattern match (dumpfiles,verinfo)", action = "store_true")
     parser.add_argument("--regex", help="Dump files matching REGEX (dumpfiles,driverirp,privs)", action = "store")
     parser.add_argument("--name", help="Name of process/object to operate on", action = "store")
+    parser.add_argument("--keepname", help="Keep original file name (dumpfiles)", action = "store_true")
     return parser
 
 
@@ -467,6 +468,10 @@ def main():
             myconfigs.config.NAME = None
         else:
             myconfigs.config.NAME = args.name
+        if "KEEPNAME" not in items["options"]:
+            myconfigs.config.NAME = None
+        else:
+            myconfigs.config.NAME = args.keepname
         if "PHYSOFFSET" not in items["options"]:
             myconfigs.config.PHYSOFFSET = None
         else:
