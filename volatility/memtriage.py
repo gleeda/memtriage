@@ -312,7 +312,7 @@ def get_parser():
     parser.add_argument("--physoffset", help="Dump File Object at physical address PHYSOFFSET (dumpfiles)", action = 'store')
     parser.add_argument("--physical", help="Display the physical address of object (pslist,handles,modules)", action = 'store_true')
     parser.add_argument("--ignore", help="Ignore case in pattern match (dumpfiles,verinfo)", action = "store_true")
-    parser.add_argument("--regex", help="Dump files matching REGEX (dumpfiles,driverirp,privs)", action = "store_true")
+    parser.add_argument("--regex", help="Dump files matching REGEX (dumpfiles,driverirp,privs)", action = "store")
     parser.add_argument("--name", help="Name of process/object to operate on", action = "store")
     return parser
 
@@ -334,6 +334,10 @@ def main():
     import volatility.debug as debug
     import volatility.addrspace as addrspace
     import volatility.scan as scan
+    try:
+        debug.setup()
+    except:
+        pass
 
     service_name = "pmem"
     unload = args.unload
