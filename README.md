@@ -117,3 +117,7 @@ Other options will be used for the appropriate plugin.  Example:
 ```
 > memtriage.exe --plugins=pslist,handles,dlllist,dlldump,dumpfiles,shimcachemem,volshell --outfile=outfile.txt --pid=2924 --dumpdir=outdir --leave --keepname --physoffset=1066160184
 ```
+
+## Releases
+
+You can find releases, including a `pyinstaller` standalone executable here: [https://github.com/gleeda/memtriage/releases](https://github.com/gleeda/memtriage/releases)
