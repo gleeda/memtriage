@@ -114,5 +114,5 @@ You may run several plugins at a time by specifying them with comma delimitation
 Other options will be used for the appropriate plugin.  Example:
 
 ```
-> memtriage.exe --plugins=pslist,handles,dlllist,dlldump,dumpfiles,shimcachemem,volshell --outfile=outfile.txt --pid=2924 --dumpdir=outdir --leave --keepname ----physoffset=1066160184
+> memtriage.exe --plugins=pslist,handles,dlllist,dlldump,dumpfiles,shimcachemem,volshell --outfile=outfile.txt --pid=2924 --dumpdir=outdir --leave --keepname --physoffset=1066160184
 ```
