@@ -1,4 +1,4 @@
-# memtriage
+# memtriage (previously lmem)
 Allows you to quickly query a Windows machine for RAM artifacts
 
 This tool utilizes the [Winpmem](https://github.com/google/rekall/tree/master/tools/pmem/resources/winpmem) drivers to access physical memory, and [Volatility](https://github.com/volatilityfoundation/volatility) for analysis.
