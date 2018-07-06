@@ -199,17 +199,19 @@ def printinfo(data, item):
     for row in data['rows']:
         print row[index]
 
-def printinfos(data, items =[], output = "text"):
+def printinfos(data, out, items =[], output = "text"):
     indeces = []
     if output == "json":
-        print data
+        out.write("{0}\n\n".format(data))
         return
     for item in items:
         indeces.append(data['columns'].index(item))
     if output == "csv":
-        print ",".join(items)
+        out.write(",".join(items))
+        out.write("\n")
     else:
-        print "\t".join(items)
+        out.write("\t".join(items))
+        out.write("\n")
     for row in data['rows']:
         therow = ""
         for index in indeces:
@@ -217,15 +219,18 @@ def printinfos(data, items =[], output = "text"):
                 therow += "{0},".format(row[index])
             else:
                 therow += "{0}\t".format(row[index])
-        print therow.rstrip(",").strip()
+        out.write("{0}\n".format(therow.rstrip(",").strip()))
 
-def printinfos_line(data, items = []):
+def printinfos_line(data, out = None, items = []):
     indeces = []
     for item in items:
         indeces.append(data['columns'].index(item))
     for row in data['rows']:
         for index in indeces:
-            print row[index]
+            if out:
+                out.write(row[index])
+            else:
+                print row[index]
 
 def getinfos(data, items = []):
     indeces = []
@@ -239,26 +244,27 @@ def getinfos(data, items = []):
         datas.append(therow)
     return datas
 
-def get_malfind_data(data, output = "text"):
+def parse_malfind_data(data, out, output = "text"):
     import volatility.plugins.malware.malfind as malfind
     datas = getinfos(data, plugin_cols["malfind"]["cols"])
     if output == "json":
-        print datas
+        out.write("{}\n\n".format(datas))
         return
     elif output == "text":
         for proc, address, data in datas:
-            print "Process: ", proc
-            print
-            print "Raw data at address{0}: {1}".format(address, data)
-            print
-            print "Disassembly:"
-            print "\n".join(
+            out.write("Process: {}\n\n".format(proc))
+            out.write("Raw data at address {0:#x}: {1}\n\n".format(address, data))
+            out.write("Disassembly:\n")
+            out.write("\n".join(
                     ["{0:#x} {1:<16} {2}".format(o, h, i)
                     for o, i, h in malfind.Disassemble(data.decode("hex"), int(address))
-                    ])
+                    ]))
+            out.write("\n\n")
     else:
         for proc, address, data in datas:
-            print "{0},{1},{2}".format(proc, address, data)
+            out.write("{0},{1},{2}\n".format(proc, address, data))
+        out.write("\n\n")
+    out.write("\n\n")
 
 class Configs:
     def __init__(self, path = "\\\\.\\pmem", profile = "Win10x64_16299", kdbg = None, debug = False):
@@ -316,6 +322,7 @@ def get_parser():
     parser.add_argument("--regex", help="Dump files matching REGEX (dumpfiles,driverirp,privs)", action = "store")
     parser.add_argument("--name", help="Name of process/object to operate on", action = "store")
     parser.add_argument("--keepname", help="Keep original file name (dumpfiles)", action = "store_true")
+    parser.add_argument("--outfile", help="Combined output file (default: stdout)", action = "store")
     return parser
 
 
@@ -354,6 +361,12 @@ def main():
         output = args.output
     if args.service:
         service_name = args.service
+    if args.outfile:
+        try:
+            out = open(args.outfile, "wb")
+        except:
+            print "Unable to open file: {}\nUsing stdout".format(args.outfile)
+            pass
 
     if not unload and not load and plugins == None:
         print "You must specify a plugin (or list of plugins) to run!"
@@ -380,8 +393,6 @@ def main():
         profile = brute_force_profile(version)
 
     if profile not in profs:
-        #out.close()
-        #return
         if debugg:
             print "Incorrect profile found: {0}, version: {1}".format(profile, version)
         profile = "Win10x64_16299"
@@ -432,6 +443,7 @@ def main():
             except OSError as e:
                 if e.errno != errno.EEXIST:
                     print "Unable to create directory", dump
+                    out.close()
                     return
 
     for p in plugins:
@@ -490,19 +502,31 @@ def main():
             myconfigs.config.IGNORE_CASE = args.ignore
         if p.strip() in dumpers and dump:
             myconfigs.config.DUMP_DIR = dump
-        elif p.strip() in dumpers and not dump:
+        elif p.strip() in dumpers and not dump and p.strip() != "malfind":
             print "You must supply a dump directory (--dumpdir=DIRECTORY) to dump to"
             print "Skipping plugin", p
             continue
         myconfigs.config.parse_options()
         if p.strip() == "malfind":
-            get_malfind_data(myconfigs.getdata(malfind.Malfind), output = output)
+            if output == "text":
+                out.write("{1}Plugin: {0}{1}\n".format(p.strip(), "*" * 20))
+            parse_malfind_data(myconfigs.getdata(malfind.Malfind), out, output = output)
+            if output == "text":
+                out.write("{0}\n\n".format("*" * 60))
+            else:
+                out.write("\n\n")
             continue
         data = myconfigs.getdata(cmds.get(p.strip(), None))
         if data == None:
             print "Plugin", p, "not found"
             continue
-        printinfos(data, cols, output = output)
+        if output == "text":
+            out.write("{1}Plugin: {0}{1}\n".format(p.strip(), "*" * 20))
+        printinfos(data, out, cols, output = output)
+        if output == "text":
+            out.write("{0}\n\n".format("*" * 60))
+        else:
+            out.write("\n\n")
     
     if dovolshell:
         for option in all_options:
