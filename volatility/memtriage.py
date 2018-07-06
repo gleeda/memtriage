@@ -482,6 +482,8 @@ def main():
                     myconfigs.config.OFFSET = int(args.offset, 16)
                 except:
                     print "Unable to use offset: {0}".format(args.offset)
+            except TypeError:
+                myconfigs.config.OFFSET = None
         if "NAME" not in items["options"]:
             myconfigs.config.NAME = None
         else:
