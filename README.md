@@ -98,9 +98,9 @@ By default, `memtriage.exe` will attempt to load the driver when it first runs, 
 The default service name that is created is `pmem`.  You may specify a different service name with the `--service=` option.  You must then use this `--service=` option for future invocations if you leave the driver loaded.  Example:
 
 ```
->memtriage.exe --leave --service=somename --plugins=dlllist --pid=2924
+> memtriage.exe --leave --service=somename --plugins=dlllist --pid=2924
 [snip]
->memtriage.exe --unload --service=somename 
+> memtriage.exe --unload --service=somename 
 ```
 
 ### Running Plugins
