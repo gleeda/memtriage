@@ -110,6 +110,7 @@ You may run several plugins at a time by specifying them with comma delimitation
 ```
 > memtriage.exe --plugins=pslist,handles,dlllist 
 ```
+![Multiple Plugins](https://github.com/gleeda/memtriage/blob/master/volatility/gifs/Multiple1.gif)
 
 Other options will be used for the appropriate plugin.  Example:
 
