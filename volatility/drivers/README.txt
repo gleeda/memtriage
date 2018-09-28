@@ -4,4 +4,4 @@ Version 2.0rc1 Copyright 2015 Google Inc. All rights reserved.
 
 Author: Michael Cohen <scudette@google.com>
 
-https://github.com/google/rekall/tree/master/tools/pmem
+https://github.com/Velocidex/c-aff4/tree/master/tools/pmem
