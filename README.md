@@ -5,8 +5,11 @@ This tool utilizes the [Winpmem](https://github.com/google/rekall/tree/master/to
 
 **Caveats:**
 * Drivers updated to work with Device Guard
+
 ** http://blog.rekall-forensic.com/2018/09/virtual-secure-mode-and-memory.html
+
 * Should be tested on machines before deploying as some Windows 10 builds may BSOD.
+
 ** Builds that may BSOD: 1607 and 1709
 
 ## Volatility Plugins
