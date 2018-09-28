@@ -246,12 +246,16 @@ def getinfos(data, items = []):
     return datas
 
 def parse_yarascan_data(data, out, output = "text"):
+    import volatility.plugins.malware.malfind as malfind
     import volatility.utils as utils
     datas = getinfos(data, plugin_cols["yarascan"]["cols"])
     if output == "json":
         out.write("{}\n\n".format(datas))
         return
     elif output == "text":
+        mode = "32bit"
+        if platform.machine() == "AMD64":
+            mode = "64bit"
         for rule, owner, addr, content in datas:
             out.write("Rule: {0}\n".format(rule))
             if owner == None:
@@ -263,6 +267,11 @@ def parse_yarascan_data(data, out, output = "text"):
                 ["{0:#010x}  {1:<48}  {2}\n".format(addr, h, ''.join(c))
                 for offset, h, c in utils.Hexdump(content.decode("hex"))
                 ]))
+            out.write("\n\nDisassembly:\n")
+            out.write("\n".join(
+                    ["{0:#x} {1:<16} {2}".format(o, h, i)
+                    for o, i, h in malfind.Disassemble(content.decode("hex"), int(addr), mode)
+                    ]))
     else:
         for rule, owner, addr, content in datas:
             out.write("{0},{1},{2}\n".format(rule, owner, addr, content))
