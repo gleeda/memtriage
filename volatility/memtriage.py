@@ -171,7 +171,7 @@ def brute_force_profile(version = None):
 
 def list_plugins():
     plugins = ""
-    for p in plugin_cols:
+    for p in sorted(plugin_cols):
         plugins += "\t\t{0}\n".format(p)
     return plugins
 
