@@ -252,20 +252,22 @@ def parse_yarascan_data(data, out, output = "text"):
         out.write("{}\n\n".format(datas))
         return
     elif output == "text":
-        for o, addr, hit, content in datas:
-            out.write("Rule: {0}\n".format(hit.rule))
-            if o == None:
+        for rule, owner, addr, content in datas:
+            out.write("Rule: {0}\n".format(rule))
+            if owner == None:
                 out.write("Owner: (Unknown Kernel Memory)\n")
-            elif o.obj_name == "_EPROCESS":
-                out.write("Owner: Process {0} Pid {1}\n".format(o.ImageFileName,
-                    o.UniqueProcessId))
             else:
-                out.write("Owner: {0}\n".format(o.BaseDllName))
+                out.write("Owner: {0}\n".format(owner))
             out.write("Hexdump:\n")
             out.write("".join(
-                ["{0:#010x}  {1:<48}  {2}\n".format(addr + o, h, ''.join(c))
-                for o, h, c in utils.Hexdump(content)
+                ["{0:#010x}  {1:<48}  {2}\n".format(addr, h, ''.join(c))
+                for offset, h, c in utils.Hexdump(content)
                 ]))
+    else:
+        for rule, owner, addr, content in datas:
+            out.write("{0},{1},{2}\n".format(rule, owner, addr, content)
+        out.write("\n\n")
+    out.write("\n\n")
 
 def parse_malfind_data(data, out, output = "text"):
     import volatility.plugins.malware.malfind as malfind
@@ -352,6 +354,14 @@ def get_parser():
     parser.add_argument("--name", help="Name of process/object to operate on", action = "store")
     parser.add_argument("--keepname", help="Keep original file name (dumpfiles)", action = "store_true")
     parser.add_argument("--outfile", help="Combined output file (default: stdout)", action = "store")
+    parser.add_argument("--yararules", help="Yara rule given on the commandline (yarascan)", action = "store")
+    parser.add_argument("--yarafile", help="Yara rules given as a file (yarascan)", action = "store")
+    parser.add_argument("--kernel", help="Scan kernel memory (yarascan)", action = "store_true")
+    parser.add_argument("--all", help="Scan both process and kernel memory (yarascan)", action = "store_true")
+    parser.add_argument("--case", help="Make the search case insensitive (yarascan)", action = "store_true")
+    parser.add_argument("--wide", help="Match wide (unicode) strings (yarascan)", action = "store_true")
+    parser.add_argument("--size", help="Size of preview hexdump in bytes (default: 256) (yarascan)", action = "store")
+    parser.add_argument("--reverse", help="Reverse [REVERSE] number of bytes (default: 0) (yarascan)", action = "store")
     return parser
 
 
@@ -487,20 +497,52 @@ def main():
             continue
         if "YARA_RULES" not in items["options"]:
             myconfigs.config.YARA_RULES = None
+        else:
+            myconfigs.config.YARA_RULES = str(args.yararules)
         if "YARA_FILE" not in items["options"]:
             myconfigs.config.YARA_FILE = None
+        else:
+            myconfigs.config.YARA_FILE = args.yarafile
         if "KERNEL" not in items["options"]:
             myconfigs.config.KERNEL = None
+        else:
+            myconfigs.config.KERNEL = args.kernel
         if "ALL" not in items["options"]:
             myconfigs.config.ALL = None
+        else:
+            myconfigs.config.ALL = args.all
         if "CASE" not in items["options"]:
             myconfigs.config.CASE = None
+        else:
+            myconfigs.config.CASE = args.case
         if "WIDE" not in items["options"]:
             myconfigs.config.WIDE = None
+        else:
+            myconfigs.config.WIDE = args.case
         if "SIZE" not in items["options"]:
             myconfigs.config.SIZE = None
+        elif not args.size:
+            myconfigs.config.SIZE = 256
+        else:
+            try:
+                myconfigs.config.SIZE = int(args.size)
+            except ValueError:
+                try:
+                    myconfigs.config.SIZE = int(args.size, 16)
+                except TypeError:
+                    myconfigs.config.SIZE = None
         if "REVERSE" not in items["options"]:
             myconfigs.config.REVERSE = None
+        elif not args.reverse:
+            myconfigs.config.REVERSE = 0
+        else:
+            try:
+                myconfigs.config.REVERSE = int(args.reverse)
+            except ValueError:
+                try:
+                    myconfigs.config.REVERSE = int(args.reverse, 16)
+                except TypeError:
+                    myconfigs.config.REVERSE = None
         if "BASE" not in items["options"]:
             myconfigs.config.BASE = None
         else:
@@ -555,7 +597,7 @@ def main():
             myconfigs.config.IGNORE_CASE = args.ignore
         if p.strip() in dumpers and dump:
             myconfigs.config.DUMP_DIR = dump
-        elif p.strip() in dumpers and not dump and p.strip() != "malfind":
+        elif p.strip() in dumpers and not dump and p.strip() not in ["malfind", "yarascan"]:
             print "You must supply a dump directory (--dumpdir=DIRECTORY) to dump to"
             print "Skipping plugin", p
             continue
