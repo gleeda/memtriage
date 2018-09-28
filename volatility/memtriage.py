@@ -277,13 +277,16 @@ def parse_malfind_data(data, out, output = "text"):
         out.write("{}\n\n".format(datas))
         return
     elif output == "text":
+        mode = "32bit"
+        if platform.machine() == "AMD64":
+            mode = "64bit"
         for proc, address, data in datas:
             out.write("Process: {}\n\n".format(proc))
             out.write("Raw data at address {0:#x}: {1}\n\n".format(address, data))
             out.write("Disassembly:\n")
             out.write("\n".join(
                     ["{0:#x} {1:<16} {2}".format(o, h, i)
-                    for o, i, h in malfind.Disassemble(data.decode("hex"), int(address))
+                    for o, i, h in malfind.Disassemble(data.decode("hex"), int(address), mode)
                     ]))
             out.write("\n\nHexdump:\n")
             out.write("{0}\n".format("\n".join(
