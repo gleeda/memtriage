@@ -272,6 +272,7 @@ def parse_yarascan_data(data, out, output = "text"):
                     ["{0:#x} {1:<16} {2}".format(o, h, i)
                     for o, i, h in malfind.Disassemble(content.decode("hex"), int(addr), mode)
                     ]))
+            out.write("\n\n")
     else:
         for rule, owner, addr, content in datas:
             out.write("{0},{1},{2}\n".format(rule, owner, addr, content))
