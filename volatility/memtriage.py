@@ -17,7 +17,7 @@ from win32api import GetFileVersionInfo, LOWORD, HIWORD
 #   as published by the Free Software Foundation; version #2
 
 plugin_cols = {
-    "yarascan":{"cols":["Rule", "Owner", "Address", "Data"], "options": ["YARA_FILE", "KERNEL", "OFFSET", "PID", "NAME", "ALL", "CASE", "WIDE", "SIZE", "REVERSE"]},
+    "yarascan":{"cols":["Rule", "Owner", "Address", "Data"], "options": ["YARA_RULES", "YARA_FILE", "KERNEL", "OFFSET", "PID", "NAME", "ALL", "CASE", "WIDE", "SIZE", "REVERSE"]},
     "dlllist":{"cols": ["Pid", "Base", "Size", "LoadCount", "LoadTime", "Path"], "options": ["PID", "OFFSET", "NAME"]},
     "pslist":{"cols": ["Offset(V)", "Name", "PID", "PPID", "Thds", "Hnds", "Sess", "Wow64", "Start", "Exit"], "options": ["PID", "OFFSET", "NAME", "PHYSICAL_OFFSET"]},
     "handles":{"cols": ["Offset(V)", "Pid", "Handle", "Access", "Type", "Details"], "options": ["PID", "OFFSET", "NAME", "PHYSICAL_OFFSET"]},
@@ -245,6 +245,28 @@ def getinfos(data, items = []):
         datas.append(therow)
     return datas
 
+def parse_yarascan_data(data, out, output = "text"):
+    import volatility.utils as utils
+    datas = getinfos(data, plugin_cols["yarascan"]["cols"])
+    if output == "json":
+        out.write("{}\n\n".format(datas))
+        return
+    elif output == "text":
+        for o, addr, hit, content in datas:
+            out.write("Rule: {0}\n".format(hit.rule))
+            if o == None:
+                out.write("Owner: (Unknown Kernel Memory)\n")
+            elif o.obj_name == "_EPROCESS":
+                out.write("Owner: Process {0} Pid {1}\n".format(o.ImageFileName,
+                    o.UniqueProcessId))
+            else:
+                out.write("Owner: {0}\n".format(o.BaseDllName))
+            out.write("Hexdump:\n")
+            out.write("".join(
+                ["{0:#010x}  {1:<48}  {2}\n".format(addr + o, h, ''.join(c))
+                for o, h, c in utils.Hexdump(content)
+                ]))
+
 def parse_malfind_data(data, out, output = "text"):
     import volatility.plugins.malware.malfind as malfind
     import volatility.utils as utils
@@ -463,6 +485,22 @@ def main():
         if p.strip() == "volshell":
             dovolshell = True
             continue
+        if "YARA_RULES" not in items["options"]:
+            myconfigs.config.YARA_RULES = None
+        if "YARA_FILE" not in items["options"]:
+            myconfigs.config.YARA_FILE = None
+        if "KERNEL" not in items["options"]:
+            myconfigs.config.KERNEL = None
+        if "ALL" not in items["options"]:
+            myconfigs.config.ALL = None
+        if "CASE" not in items["options"]:
+            myconfigs.config.CASE = None
+        if "WIDE" not in items["options"]:
+            myconfigs.config.WIDE = None
+        if "SIZE" not in items["options"]:
+            myconfigs.config.SIZE = None
+        if "REVERSE" not in items["options"]:
+            myconfigs.config.REVERSE = None
         if "BASE" not in items["options"]:
             myconfigs.config.BASE = None
         else:
@@ -522,6 +560,15 @@ def main():
             print "Skipping plugin", p
             continue
         myconfigs.config.parse_options()
+        if p.strip() == "yarascan":
+            if output == "text":
+                out.write("{1}Plugin: {0}{1}\n".format(p.strip(), "*" * 20))
+            parse_yarascan_data(myconfigs.getdata(malfind.YaraScan), out, output = output)
+            if output == "text":
+                out.write("{0}\n\n".format("*" * 60))
+            else:
+                out.write("\n\n")
+            continue
         if p.strip() == "malfind":
             if output == "text":
                 out.write("{1}Plugin: {0}{1}\n".format(p.strip(), "*" * 20))
