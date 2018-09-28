@@ -261,7 +261,7 @@ def parse_yarascan_data(data, out, output = "text"):
             out.write("Hexdump:\n")
             out.write("".join(
                 ["{0:#010x}  {1:<48}  {2}\n".format(addr, h, ''.join(c))
-                for offset, h, c in utils.Hexdump(content)
+                for offset, h, c in utils.Hexdump(content.decode("hex"))
                 ]))
     else:
         for rule, owner, addr, content in datas:
