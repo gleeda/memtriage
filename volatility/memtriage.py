@@ -246,6 +246,7 @@ def getinfos(data, items = []):
 
 def parse_malfind_data(data, out, output = "text"):
     import volatility.plugins.malware.malfind as malfind
+    import volatility.utils as utils
     datas = getinfos(data, plugin_cols["malfind"]["cols"])
     if output == "json":
         out.write("{}\n\n".format(datas))
@@ -259,6 +260,11 @@ def parse_malfind_data(data, out, output = "text"):
                     ["{0:#x} {1:<16} {2}".format(o, h, i)
                     for o, i, h in malfind.Disassemble(data.decode("hex"), int(address))
                     ]))
+            out.write("\n\nHexdump:\n")
+            out.write("{0}\n".format("\n".join(
+                    ["{0:#010x}  {1:<48}  {2}".format(int(address) + o, h, ''.join(c))
+                    for o, h, c in utils.Hexdump(data.decode("hex"))
+                    ])))
             out.write("\n\n")
     else:
         for proc, address, data in datas:
