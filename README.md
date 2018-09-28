@@ -13,30 +13,32 @@ This tool utilizes the [Winpmem](https://github.com/google/rekall/tree/master/to
 
 The following are currently supported:
 
-* pslist
-* dlllist
-* ldrmodules
-* modules
-* handles
-* malfind
-* driverirp
-* psxview
-* privs
-* svcscan
-* getsids
-* vadinfo
-* netscan
-* cmdline
-* envars
-* verinfo
+* apihooks 
 * atoms
+* cmdline 
+* dlldump 
+* dlllist 
+* driverirp 
+* dumpfiles 
+* envars
+* getsids 
+* handles 
+* ldrmodules 
+* malfind 
+* moddump 
+* modules
+* netscan 
+* privs 
+* procdump 
+* pslist 
+* psxview 
 * shimcachemem
-* apihooks
-* procdump
-* dlldump
-* moddump
-* dumpfiles
-* volshell
+* svcscan 
+* vaddump 
+* vadinfo 
+* verinfo 
+* volshell 
+* yarascan
 
 ## Example Usage
 
@@ -46,7 +48,9 @@ usage: memtriage.exe [-h] [--unload] [--load] [--debug] [--service SERVICE]
                      [--offset OFFSET] [--memory MEMORY] [--pid PID] [--leave]
                      [--plugins PLUGINS] [--physoffset PHYSOFFSET]
                      [--physical] [--ignore] [--regex REGEX] [--name NAME]
-                     [--keepname]
+                     [--keepname] [--outfile OUTFILE] [--yararules YARARULES]
+                     [--yarafile YARAFILE] [--kernel] [--all] [--case]
+                     [--wide] [--size SIZE] [--reverse REVERSE]
 
 Memtriage options:
 
@@ -66,11 +70,11 @@ optional arguments:
                         (dlldump,procdump,moddump)
   --pid PID             Operate on this process ID
   --leave               Leave pmem service running with driver
-  --plugins PLUGINS     Comma delimited list of plugins to run: dlldump
-                        netscan cmdline procdump envars moddump handles
-                        dlllist psxview vadinfo dumpfiles svcscan malfind
-                        atoms apihooks volshell vaddump privs driverirp
-                        shimcachemem ldrmodules modules verinfo pslist getsids
+  --plugins PLUGINS     Comma delimited list of plugins to run: apihooks atoms
+                        cmdline dlldump dlllist driverirp dumpfiles envars
+                        getsids handles ldrmodules malfind moddump modules
+                        netscan privs procdump pslist psxview shimcachemem
+                        svcscan vaddump vadinfo verinfo volshell yarascan
   --physoffset PHYSOFFSET
                         Dump File Object at physical address PHYSOFFSET
                         (dumpfiles)
@@ -81,6 +85,17 @@ optional arguments:
   --name NAME           Name of process/object to operate on
   --keepname            Keep original file name (dumpfiles)
   --outfile OUTFILE     Combined output file (default: stdout)
+  --yararules YARARULES
+                        Yara rule given on the commandline (yarascan)
+  --yarafile YARAFILE   Yara rules given as a file (yarascan)
+  --kernel              Scan kernel memory (yarascan)
+  --all                 Scan both process and kernel memory (yarascan)
+  --case                Make the search case insensitive (yarascan)
+  --wide                Match wide (unicode) strings (yarascan)
+  --size SIZE           Size of preview hexdump in bytes (default: 256)
+                        (yarascan)
+  --reverse REVERSE     Reverse [REVERSE] number of bytes (default: 0)
+                        (yarascan)
 ```
 
 ### No Need to Specify Profiles
