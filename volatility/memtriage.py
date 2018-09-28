@@ -17,6 +17,7 @@ from win32api import GetFileVersionInfo, LOWORD, HIWORD
 #   as published by the Free Software Foundation; version #2
 
 plugin_cols = {
+    "yarascan":{"cols":["Rule", "Owner", "Address", "Data"], "options": ["YARA_FILE", "KERNEL", "OFFSET", "PID", "NAME", "ALL", "CASE", "WIDE", "SIZE", "REVERSE"]},
     "dlllist":{"cols": ["Pid", "Base", "Size", "LoadCount", "LoadTime", "Path"], "options": ["PID", "OFFSET", "NAME"]},
     "pslist":{"cols": ["Offset(V)", "Name", "PID", "PPID", "Thds", "Hnds", "Sess", "Wow64", "Start", "Exit"], "options": ["PID", "OFFSET", "NAME", "PHYSICAL_OFFSET"]},
     "handles":{"cols": ["Offset(V)", "Pid", "Handle", "Access", "Type", "Details"], "options": ["PID", "OFFSET", "NAME", "PHYSICAL_OFFSET"]},
@@ -44,9 +45,9 @@ plugin_cols = {
     "dumpfiles":{"cols":["Source", "Address", "PID", "Name", "OutputPath", "Data"], "options":["PHYSOFFSET", "PID", "OFFSET", "REGEX", "IGNORE_CASE", "KEEPNAME"]},
 }
 
-dumpers = ["dlldump", "procdump", "vaddump", "moddump", "dumpfiles", "malfind"]
+dumpers = ["dlldump", "procdump", "vaddump", "moddump", "dumpfiles", "malfind", "yarascan"]
 
-all_options = ["BASE", "MEMORY", "REGEX", "PID", "OFFSET", "NAME", "PHYSOFFSET", "PHYSICAL_OFFSET", "IGNORE_CASE", "DUMP_DIR"]
+all_options = ["BASE", "MEMORY", "REGEX", "PID", "OFFSET", "NAME", "PHYSOFFSET", "PHYSICAL_OFFSET", "IGNORE_CASE", "DUMP_DIR", "YARA_FILE", "KERNEL", "ALL", "CASE", "WIDE", "SIZE", "REVERSE"]
 
 outputs = ["text", "json", "csv"]
 
