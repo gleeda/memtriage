@@ -22,7 +22,7 @@ plugin_cols = {
     "pslist":{"cols": ["Offset(V)", "Name", "PID", "PPID", "Thds", "Hnds", "Sess", "Wow64", "Start", "Exit"], "options": ["PID", "OFFSET", "NAME", "PHYSICAL_OFFSET"]},
     "handles":{"cols": ["Offset(V)", "Pid", "Handle", "Access", "Type", "Details"], "options": ["PID", "OFFSET", "NAME", "PHYSICAL_OFFSET"]},
     "modules":{"cols": ["Offset(V)", "Name", "Base", "Size", "File"], "options": ["PHYSICAL_OFFSET"]},
-    "malfind":{"cols": ["Process", "Address", "Data"], "options": ["PID", "OFFSET"]},
+    "malfind":{"cols": ["Process", "Pid", "Address", "VadTag", "Protection", "Flags", "Data"], "options": ["PID", "OFFSET"]},
     "driverirp":{"cols": ["Offset(P)", "Pointers", "Handles", "Start", "Size", "Service Key", "Name", "Driver Name"], "options": ["REGEX"]},
     "psxview":{"cols": ["Offset(P)", "Name", "PID", "pslist", "psscan", "thrdproc", "pspcid", "csrss", "session", "deskthrd", "ExitTime"],"options": []},
     "privs":{"cols": ["Pid", "Process", "Value", "Privilege", "Attributes", "Description"], "options": ["PID", "OFFSET", "REGEX"]},
@@ -290,8 +290,9 @@ def parse_malfind_data(data, out, output = "text"):
         mode = "32bit"
         if platform.machine() == "AMD64":
             mode = "64bit"
-        for proc, address, data in datas:
-            out.write("Process: {}\n\n".format(proc))
+        for proc, pid, address, vadtag, protection, flags, data in datas:
+            out.write("Process: {}, Pid: {}\n".format(proc, pid))
+            out.write("VadTag: {}, Protection: {}, Flags: {}\n\n".format(vadtag, protection, flags)
             out.write("Raw data at address {0:#x}: {1}\n\n".format(address, data))
             out.write("Disassembly:\n")
             out.write("\n".join(
@@ -305,8 +306,8 @@ def parse_malfind_data(data, out, output = "text"):
                     ])))
             out.write("\n\n")
     else:
-        for proc, address, data in datas:
-            out.write("{0},{1},{2}\n".format(proc, address, data))
+        for proc, pid, address, vadtag, protection, flags, data in datas:
+            out.write("{},{},{},{},{},{},{}\n".format(proc, pid, address, vadtag, protection, flags, data))
         out.write("\n\n")
     out.write("\n\n")
 
