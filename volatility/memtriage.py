@@ -176,8 +176,8 @@ def list_plugins():
     return plugins
 
 
-def setup(driver, service_name, pmem_service, debug = False):
-    destroyer = threading.Thread(target=destroy, args=(driver, service_name, debug))
+def setup(driver, service_name, pmem_service, debug_enabled = False):
+    destroyer = threading.Thread(target=destroy, args=(driver, service_name, debug_enabled))
     destroyer.start()
     destroyer.join()
     try:
@@ -312,24 +312,24 @@ def parse_malfind_data(data, out, output = "text"):
     out.write("\n\n")
 
 class Configs:
-    def __init__(self, path = "\\\\.\\pmem", profile = "Win10x64_16299", kdbg = None, debug = False):
+    def __init__(self, path = "\\\\.\\pmem", profile = "Win10x64_16299", kdbg = None, debug_enabled = False):
         self.config = libapi.get_config(profile, path)
 
-        if debug:
+        if debug_enabled:
             print "Config created with Profile: {0} and Path: {1}".format(profile, path)
         if kdbg:
             self.kdbg = kdbg
-            if debug:
+            if debug_enabled:
                 print "KDBG:", hex(kdbg.v())
         else:
             self.kdbg = self.get_the_kdbg()
             if self.kdbg != None:
                 self.kdbg = self.kdbg.v()
-                if debug:
+                if debug_enabled:
                     print "KDBG:", hex(self.kdbg)
         if hasattr(self.kdbg, 'KdCopyDataBlock'):
             self.kdbg = self.kdbg.KdCopyDataBlock
-            if debug:
+            if debug_enabled:
                 print "KDBG:", hex(self.kdbg)
         self.config.KDBG = self.kdbg
 
