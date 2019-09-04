@@ -294,7 +294,7 @@ def parse_malfind_data(data, out, output = "text"):
             mode = "64bit"
         for proc, pid, address, vadtag, protection, flags, data in datas:
             out.write("Process: {}, Pid: {}\n".format(proc, pid))
-            out.write("VadTag: {}, Protection: {}, Flags: {}\n\n".format(vadtag, protection, flags)
+            out.write("VadTag: {}, Protection: {}, Flags: {}\n\n".format(vadtag, protection, flags))
             out.write("Raw data at address {0:#x}: {1}\n\n".format(address, data))
             out.write("Disassembly:\n")
             out.write("\n".join(
