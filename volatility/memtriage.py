@@ -481,7 +481,7 @@ def main():
     if load:
         return
 
-    myconfigs = Configs(path = "\\\\.\\" + service_name, profile = profile, debug = debugg)
+    myconfigs = Configs(path = "\\\\.\\" + service_name, profile = profile, debug_enabled = debugg)
     if myconfigs.kdbg == None:
         print "Unable to find valid KDBG value... quitting"
         setup(driver, service_name, pmem_service, debugg)
