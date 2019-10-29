@@ -77,6 +77,7 @@ WindowsVersionsX86 = {
     "10.0.17134.1":"Win10x86_17134",
     "10.0.17763.0":"Win10x86_17763",
     "10.0.18362.0":"Win10x86_18362",
+    "10.0.18362.1":"Win10x86_18362",
 }
 
 WindowsVersionsX64 = { 
@@ -108,6 +109,7 @@ WindowsVersionsX64 = {
     "10.0.17134.1":"Win10x64_17134",
     "10.0.17763.0":"Win10x64_17763",
     "10.0.18362.0":"Win10x64_18362",
+    "10.0.18362.1":"Win10x64_18362",
 }
 
 def get_hostname():
@@ -130,6 +132,29 @@ def get_version_number(filename):
         return "{0}.{1}.{2}.{3}".format(HIWORD (ms), LOWORD (ms), HIWORD (ls), LOWORD (ls))
     except:
         return "0.0.0.0"
+
+def first_try_brute_force(debugg = False, version = None):
+    if version == None:
+        if debugg:
+            print "No version given"
+        return "UNKNOWN"
+
+    if debugg:
+        print "Version: {}".format(version)
+        print "Short version: {}".format(".".join(version.split(".")[:-1]))
+    if platform.machine() == "AMD64":
+        for i in WindowsVersionsX64:
+            if i.find(".".join(version.split(".")[:-1])) != -1:
+                if debugg:
+                    print "Returning profile: {}".format(WindowsVersionsX64[i])
+                return WindowsVersionsX64[i]
+    else:
+        for i in WindowsVersionsX86:
+            if i.find(".".join(version.split(".")[:-1])) != -1:
+                if debugg:
+                    print "Returning profile: {}".format(WindowsVersionsX86[i])
+                return WindowsVersionsX86[i]
+    return "UNKNOWN"
 
 def brute_force_profile(version = None):
     profile = ""
@@ -316,7 +341,7 @@ def parse_malfind_data(data, out, output = "text"):
     out.write("\n\n")
 
 class Configs:
-    def __init__(self, path = "\\\\.\\pmem", profile = "Win10x64_16299", kdbg = None, debug_enabled = False):
+    def __init__(self, path = "\\\\.\\pmem", profile = "Win10x64_18362", kdbg = None, debug_enabled = False):
         self.config = libapi.get_config(profile, path)
 
         if debug_enabled:
@@ -328,13 +353,12 @@ class Configs:
         else:
             self.kdbg = self.get_the_kdbg()
             if self.kdbg != None:
-                self.kdbg = self.kdbg.v()
+                if hasattr(self.kdbg, 'KdCopyDataBlock'):
+                    self.kdbg = self.kdbg.KdCopyDataBlock
+                else:
+                    self.kdbg = self.kdbg.v()
                 if debug_enabled:
                     print "KDBG:", hex(self.kdbg)
-        if hasattr(self.kdbg, 'KdCopyDataBlock'):
-            self.kdbg = self.kdbg.KdCopyDataBlock
-            if debug_enabled:
-                print "KDBG:", hex(self.kdbg)
         self.config.KDBG = self.kdbg
 
     def gettext(self, plugin):
@@ -440,7 +464,7 @@ def main():
         print "cannot run on a non-Windows machine"
         out.close()
         return
-    profile = "Win10x64_16299"
+    profile = "Win10x64_18362"
     version = get_version_number("ntdll.dll")
     if platform.machine() == "AMD64":
         driver = "winpmem_x64.sys"
@@ -449,12 +473,14 @@ def main():
         driver = "winpmem_x86.sys"
         profile = WindowsVersionsX86.get(version, "UNKNOWN")
     if profile == "UNKNOWN":
-        profile = brute_force_profile(version)
+        profile = first_try_brute_force(debugg, version)
+        if profile == "UNKNOWN":
+            profile = brute_force_profile(version)
 
     if profile not in profs:
         if debugg:
             print "Incorrect profile found: {0}, version: {1}".format(profile, version)
-        profile = "Win10x64_16299"
+        profile = "Win10x64_18362"
         if debugg:
             print "Trying profile", profile
     if debugg:
@@ -486,9 +512,10 @@ def main():
         return
 
     myconfigs = Configs(path = "\\\\.\\" + service_name, kdbg = kdbg, profile = profile, debug_enabled = debugg)
-    if myconfigs.kdbg == None:
+    if myconfigs.config.KDBG == None:
         print "Unable to find valid KDBG value... quitting"
-        setup(driver, service_name, pmem_service, debugg)
+        if not load:
+            setup(driver, service_name, pmem_service, debugg)
         out.close()
         return
 

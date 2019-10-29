@@ -31,8 +31,11 @@ def get_the_kdbg(config, profile):
     plugin = kdbgscan.KDBGScan(copy.deepcopy(config))
     data = plugin.calculate()
     for suggestion, kdbg in data:
-        if profile == suggestion and len(list(kdbg.processes())) > 0:
-            return kdbg
+        try:
+            if profile == suggestion and len(list(kdbg.processes())) > 0:
+                return kdbg
+        except AttributeError:
+            pass
     return None
 
 def get_json(config, plugin_class):
