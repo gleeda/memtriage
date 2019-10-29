@@ -15,5 +15,5 @@ import sys
 datas = []
 path = os.path.join(os.getcwd(), "drivers")
 
-datas.append((os.path.join(path, "winpmem_x64.sys"), ""))
-datas.append((os.path.join(path, "winpmem_x86.sys"), ""))
+datas.append((os.path.join(path, "winpmem_x64.sys"), "."))
+datas.append((os.path.join(path, "winpmem_x86.sys"), "."))

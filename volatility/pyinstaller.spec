@@ -23,7 +23,7 @@ excludes = [".DS_Store", "arm.py", "elfcoredump.py", "ieee1394.py", "hpak.py", "
 for d in a.binaries:
     for item in d[0]:
         if item in excludes:
-            print "removing", d[0]
+            print ("removing {}".format(d[0]))
             a.binaries.remove(d)
 
 pyz = PYZ(a.pure)

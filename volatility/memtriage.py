@@ -378,6 +378,7 @@ def get_parser():
     parser.add_argument("--wide", help="Match wide (unicode) strings (yarascan)", action = "store_true")
     parser.add_argument("--size", help="Size of preview hexdump in bytes (default: 256) (yarascan)", action = "store")
     parser.add_argument("--reverse", help="Reverse [REVERSE] number of bytes (default: 0) (yarascan)", action = "store")
+    parser.add_argument("--kdbg", help="Manually select KDBG value", action = "store")
     return parser
 
 
@@ -411,6 +412,7 @@ def main():
     out = sys.stdout
     debugg = args.debug
     dump = args.dumpdir
+    kdbg = args.kdbg
 
     if args.output:
         output = args.output
@@ -481,7 +483,7 @@ def main():
     if load:
         return
 
-    myconfigs = Configs(path = "\\\\.\\" + service_name, profile = profile, debug_enabled = debugg)
+    myconfigs = Configs(path = "\\\\.\\" + service_name, kdbg = kdbg, profile = profile, debug_enabled = debugg)
     if myconfigs.kdbg == None:
         print "Unable to find valid KDBG value... quitting"
         setup(driver, service_name, pmem_service, debugg)
