@@ -303,8 +303,9 @@ def parse_yarascan_data(data, out, output = "text"):
                     ]))
             out.write("\n\n")
     else:
+        out.write("{0},{1},{2},{3}\n".format("Rule", "Owner", "Address", "Data"))
         for rule, owner, addr, content in datas:
-            out.write("{0},{1},{2}\n".format(rule, owner, addr, content))
+            out.write("{0},{1},{2},{3}\n".format(rule, owner, addr, content))
         out.write("\n\n")
     out.write("\n\n")
 
@@ -335,6 +336,8 @@ def parse_malfind_data(data, out, output = "text"):
                     ])))
             out.write("\n\n")
     else:
+        out.write("{},{},{},{},{},{},{}\n").format(
+            "Process", "Pid", "Address", "VadTag", "Protection", "Flags", "Data")
         for proc, pid, address, vadtag, protection, flags, data in datas:
             out.write("{},{},{},{},{},{},{}\n".format(proc, pid, address, vadtag, protection, flags, data))
         out.write("\n\n")
