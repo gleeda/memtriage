@@ -73,6 +73,7 @@ WindowsVersionsX86 = {
     "10.0.15063.0":"Win10x86_15063",
     "10.0.15063.608":"Win10x64_15063",
     "10.0.16299.15":"Win10x86_16299",
+    "10.0.16299.492": "Win10x86_16299",
     "10.0.10240.17770":"Win10x86_10240_17770",
     "10.0.17134.1":"Win10x86_17134",
     "10.0.17763.0":"Win10x86_17763",
@@ -105,6 +106,7 @@ WindowsVersionsX64 = {
     "10.0.15063.608":"Win10x64_15063",
     "10.0.14393.479":"Win10x64_14393",
     "10.0.16299.0":"Win10x64_16299",
+    "10.0.16299.492": "Win10x64_16299",
     "10.0.10240.17770":"Win10x64_10240_17770",
     "10.0.17134.1":"Win10x64_17134",
     "10.0.17763.0":"Win10x64_17763",
@@ -303,7 +305,7 @@ def parse_yarascan_data(data, out, output = "text"):
                     ]))
             out.write("\n\n")
     else:
-        out.write("{0},{1},{2},{3}\n".format("Rule", "Owner", "Address", "Data"))
+        out.write("{0},{1},{2},{3}\n").format("Rule", "Owner", "Address", "Data"))
         for rule, owner, addr, content in datas:
             out.write("{0},{1},{2},{3}\n".format(rule, owner, addr, content))
         out.write("\n\n")
@@ -336,8 +338,7 @@ def parse_malfind_data(data, out, output = "text"):
                     ])))
             out.write("\n\n")
     else:
-        out.write("{},{},{},{},{},{},{}\n").format(
-            "Process", "Pid", "Address", "VadTag", "Protection", "Flags", "Data")
+        out.write("{},{},{},{},{},{},{}\n".format("Process", "Pid", "Address", "VadTag", "Protection", "Flags", "Data"))
         for proc, pid, address, vadtag, protection, flags, data in datas:
             out.write("{},{},{},{},{},{},{}\n".format(proc, pid, address, vadtag, protection, flags, data))
         out.write("\n\n")
@@ -470,10 +471,10 @@ def main():
     profile = "Win10x64_18362"
     version = get_version_number("ntdll.dll")
     if platform.machine() == "AMD64":
-        driver = "winpmem_x64.sys"
+        driver = "att_winpmem_64.sys"
         profile = WindowsVersionsX64.get(version, "UNKNOWN")
     else:
-        driver = "winpmem_x86.sys"
+        driver = "att_winpmem_32.sys"
         profile = WindowsVersionsX86.get(version, "UNKNOWN")
     if profile == "UNKNOWN":
         profile = first_try_brute_force(debugg, version)
@@ -483,7 +484,10 @@ def main():
     if profile not in profs:
         if debugg:
             print "Incorrect profile found: {0}, version: {1}".format(profile, version)
-        profile = "Win10x64_18362"
+        if platform.machine() == "AMD64":
+            profile = "Win10x64_18362"
+        else:
+            profile = "Win10x86_18362"
         if debugg:
             print "Trying profile", profile
     if debugg:
@@ -495,14 +499,25 @@ def main():
         sys.exit(-1)
     
     pmem_service = Service(driver = driver, service = service_name, debug = debugg)
-
-
     if not service_running(service_name):
         setup(driver, service_name, pmem_service, debugg)
         try:
-            pmem_service.start()
+            ret_code = pmem_service.start()
+            if ret_code == -1:
+                if platform.machine() == "AMD64":
+                    driver = "winpmem_64.sys"
+                else:
+                    driver = "winpmem_32.sys"
+                driver = resource_path(driver)
+                if not service_name or not os.access(driver, os.R_OK):
+                    out.write("Make sure the driver is in place: {0}".format(driver))
+                    sys.exit(-1)
+                pmem_service = Service(driver = driver, service = service_name, debug = debugg)
+                if not service_running(service_name):
+                    setup(driver, service_name, pmem_service, debugg)
+                    pmem_service.start()
         except:
-            print "Unable to start winpmem service"
+            out.write("Unable to start winpmem service\n")
             out.close()
             return
 

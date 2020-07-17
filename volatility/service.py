@@ -139,8 +139,10 @@ class Service(object):
             # If the problem is different, we need to terminate.
             elif self.debug:
                 print "Unable to start service: {0}".format(e)
+                return -1
 
         self.wait_status()
+        return 0
 
     def svcStatus(self):
         return win32serviceutil.QueryServiceStatus(self.service_name, None)[1]   # scvType, svcState, svcControls, err, svcErr, svcCP, svcWH
