@@ -305,7 +305,7 @@ def parse_yarascan_data(data, out, output = "text"):
                     ]))
             out.write("\n\n")
     else:
-        out.write("{0},{1},{2},{3}\n").format("Rule", "Owner", "Address", "Data"))
+        out.write("{0},{1},{2},{3}\n".format("Rule", "Owner", "Address", "Data"))
         for rule, owner, addr, content in datas:
             out.write("{0},{1},{2},{3}\n".format(rule, owner, addr, content))
         out.write("\n\n")
